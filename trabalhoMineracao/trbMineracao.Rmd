@@ -1,0 +1,60 @@
+---
+title: "R Notebook"
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document:
+    df_print: paged
+---
+
+Trabalho academico parte 1 Mineração de dados
+
+Ler os arquivos csv e import despesa Por Orgao 
+
+O que precisa ser feito ?
+  Objetivos das analise
+ 1 - verificar qual foi o maior valor pago
+ 2 - a media/mediana/moda dos valores
+ 3 - quais orgão ganharam mais dinheiro e os que ganharam menos
+ 4 - fazer uma analise prever quais são os padrões de gastos em uberlândia
+ 5 - criar uma arvore de descisão
+6 - categorizar os valores
+```{r}
+here::i_am("trabalhoMineracao/trbMineracao.Rmd")
+setwd("/home/higorlucas/Mestrado/MineracaoDados/trabalhoMineracao")
+library(here)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+
+
+tabela_despesa_publica <- read_csv2("despesasPorOrgao.csv")
+
+tabela_despesa_publica$...7 <- NULL
+
+summary(tabela_despesa_publica$`Valor Recebido`)
+```
+Mudar as variaveis Preco
+```{r}
+tabela_despesa_publica$Preco <- gsub("[ ,]","",gsub("[.,]","",gsub("[R$,]","",tabela_despesa_publica$`Valor Recebido`)))
+
+tabela_despesa_publica$Preco <- as.numeric(tabela_despesa_publica$Preco)
+
+tabela_despesa_publica$Preco <- tabela_despesa_publica$Preco/100
+tabela_despesa_publica$`Valor Recebido` <- tabela_despesa_publica$Preco
+tabela_despesa_publica$Preco <- NULL
+
+```
+
+Separa Nome dos CPF/Cnpj
+```{r}
+library(stringr)
+tabela_despesa_publica$cnpj_cpf <- str_extract(tabela_despesa_publica$Favorecido,".+[0-9]-+.")
+tabela_despesa_publica$nome <-str_extract(tabela_despesa_publica$Favorecido,"[A-Z].+")
+tabela_despesa_publica$Favorecido <- NULL
+```
+
+Criar arquivo formatado para minerar dados
+```{r}
+write.table(tabela_despesa_publica,"despesasFormatado.csv",row.names=FALSE,sep=";",fileEncoding = "UTF-8")
+```
