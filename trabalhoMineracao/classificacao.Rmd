@@ -68,5 +68,4 @@ menos_de_dez_porcento <- quantile(tabela_despesa_publica2$`Valor Recebido`,0.90)
 
 hist(tabela_despesa_publica2$`Valor Recebido`[tabela_despesa_publica2$`Valor Recebido`< menos_de_dez_porcento],xlab="Valores menores que 10%",breaks=10,labels=T)
 
-df$Carro <- NULL
 ```
