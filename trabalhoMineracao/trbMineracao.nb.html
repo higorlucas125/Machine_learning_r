@@ -1762,82 +1762,123 @@ display: none;
 <p>Ler os arquivos csv e import despesa Por Orgao</p>
 <p>O que precisa ser feito ? Objetivos das analise 1 - verificar qual
 foi o maior valor pago 2 - a media/mediana/moda dos valores 3 - quais
-orgão ganharam mais dinheiro e os que ganharam menos 4 - fazer uma
+orgão pagam ganharam mais dinheiro e os que pagam menos 4 - fazer uma
 analise prever quais são os padrões de gastos em uberlândia 5 - criar
 uma arvore de descisão 6 - categorizar os valores</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaGVyZTo6aV9hbShcInRyYWJhbGhvTWluZXJhY2FvL3RyYk1pbmVyYWNhby5SbWRcIilcbmBgYCJ9 -->
-<pre class="r"><code>here::i_am(&quot;trabalhoMineracao/trbMineracao.Rmd&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiaGVyZSgpIHN0YXJ0cyBhdCAvaG9tZS9oaWdvcmx1Y2FzL01lc3RyYWRvL01pbmVyYWNhb0RhZG9zXG4ifQ== -->
-<pre><code>here() starts at /home/higorlucas/Mestrado/MineracaoDados</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0d2QoXCIvaG9tZS9oaWdvcmx1Y2FzL01lc3RyYWRvL01pbmVyYWNhb0RhZG9zL3RyYWJhbGhvTWluZXJhY2FvXCIpXG5saWJyYXJ5KGhlcmUpXG5saWJyYXJ5KHRpZHl2ZXJzZSlcbmxpYnJhcnkoamFuaXRvcilcbmxpYnJhcnkobHVicmlkYXRlKVxuXG5cbnRhYmVsYV9kZXNwZXNhX3B1YmxpY2EgPC0gcmVhZF9jc3YyKFwiZGVzcGVzYXNQb3JPcmdhby5jc3ZcIilcbmBgYCJ9 -->
-<pre class="r"><code>setwd(&quot;/home/higorlucas/Mestrado/MineracaoDados/trabalhoMineracao&quot;)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuaGVyZTo6aV9hbShcXHRyYWJhbGhvTWluZXJhY2FvL3RyYk1pbmVyYWNhby5SbWRcXClcbmBgYFxuYGBgIn0= -->
+<pre class="r"><code>```r
+here::i_am(\trabalhoMineracao/trbMineracao.Rmd\)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoiaGVyZSgpIHN0YXJ0cyBhdCAvaG9tZS9oaWdvcmx1Y2FzL01lc3RyYWRvL01pbmVyYWNhb0RhZG9zXG4ifQ== --&gt;
+</code></pre>
+<p>here() starts at /home/higorlucas/Mestrado/MineracaoDados</p>
+<pre><code>
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc2V0d2QoXFwvaG9tZS9oaWdvcmx1Y2FzL01lc3RyYWRvL01pbmVyYWNhb0RhZG9zL3RyYWJhbGhvTWluZXJhY2FvXFwpXG5saWJyYXJ5KGhlcmUpXG5saWJyYXJ5KHRpZHl2ZXJzZSlcbmxpYnJhcnkoamFuaXRvcilcbmxpYnJhcnkobHVicmlkYXRlKVxuXG5cbnRhYmVsYV9kZXNwZXNhX3B1YmxpY2EgPC0gcmVhZF9jc3YyKFxcZGVzcGVzYXNQb3JPcmdhby5jc3ZcXClcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+setwd(\/home/higorlucas/Mestrado/MineracaoDados/trabalhoMineracao\)
 library(here)
 library(tidyverse)
 library(janitor)
 library(lubridate)
 
 
-tabela_despesa_publica &lt;- read_csv2(&quot;despesasPorOrgao.csv&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoi4oS5IFVzaW5nIFwiJywnXCIgYXMgZGVjaW1hbCBhbmQgXCInLidcIiBhcyBncm91cGluZyBtYXJrLiBVc2UgYHJlYWRfZGVsaW0oKWAgZm9yIG1vcmUgY29udHJvbC5cbk5ldyBuYW1lczpSb3dzOiA5MjM2IENvbHVtbnM6IDfilIDilIAgQ29sdW1uIHNwZWNpZmljYXRpb24g4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSAXG5EZWxpbWl0ZXI6IFwiO1wiXG5jaHIgKDYpOiBNw6pzIEFubywgRmF2b3JlY2lkbywgVGlwbyBkZSBGYXZvcmVjaWRvLCBVRi4uLlxubGdsICgxKTogLi4uN1xu4oS5IFVzZSBgc3BlYygpYCB0byByZXRyaWV2ZSB0aGUgZnVsbCBjb2x1bW4gc3BlY2lmaWNhdGlvbiBmb3IgdGhpcyBkYXRhLlxu4oS5IFNwZWNpZnkgdGhlIGNvbHVtbiB0eXBlcyBvciBzZXQgYHNob3dfY29sX3R5cGVzID0gRkFMU0VgIHRvIHF1aWV0IHRoaXMgbWVzc2FnZS5cbiJ9 -->
-<pre><code>ℹ Using &quot;&#39;,&#39;&quot; as decimal and &quot;&#39;.&#39;&quot; as grouping mark. Use `read_delim()` for more control.
-New names:Rows: 9236 Columns: 7── Column specification ────────────────────────────────
-Delimiter: &quot;;&quot;
-chr (6): Mês Ano, Favorecido, Tipo de Favorecido, UF...
-lgl (1): ...7
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFiZWxhX2Rlc3Blc2FfcHVibGljYSQuLi43IDwtIE5VTExcblxuc3VtbWFyeSh0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJGBWYWxvciBSZWNlYmlkb2ApXG5gYGAifQ== -->
-<pre class="r"><code>tabela_despesa_publica$...7 &lt;- NULL
+tabela_despesa_publica &lt;- read_csv2(\despesasPorOrgao.csv\)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-output-begin eyJkYXRhIjoi4oS5IFVzaW5nIFxcJ1xuIn0= --&gt;
+</code></pre>
+<p>ℹ Using &#39;</p>
+<pre><code>
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxudGFiZWxhX2Rlc3Blc2FfcHVibGljYSQuLi43IDwtIE5VTExcblxuc3VtbWFyeSh0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJGBWYWxvciBSZWNlYmlkb2ApXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+tabela_despesa_publica$...7 &lt;- NULL
 
 summary(tabela_despesa_publica$`Valor Recebido`)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgTGVuZ3RoICAgICBDbGFzcyAgICAgIE1vZGUgXG4gICAgIDkyMzYgY2hhcmFjdGVyIGNoYXJhY3RlciBcbiJ9 -->
-<pre><code>   Length     Class      Mode 
-     9236 character character </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Mudar as variaveis Preco</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGFiZWxhX2Rlc3Blc2FfcHVibGljYSRQcmVjbyA8LSBnc3ViKFwiWyAsXVwiLFwiXCIsZ3N1YihcIlsuLF1cIixcIlwiLGdzdWIoXCJbUiQsXVwiLFwiXCIsdGFiZWxhX2Rlc3Blc2FfcHVibGljYSRgVmFsb3IgUmVjZWJpZG9gKSkpXG5cbnRhYmVsYV9kZXNwZXNhX3B1YmxpY2EkUHJlY28gPC0gYXMubnVtZXJpYyh0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJFByZWNvKVxuXG50YWJlbGFfZGVzcGVzYV9wdWJsaWNhJFByZWNvIDwtIHRhYmVsYV9kZXNwZXNhX3B1YmxpY2EkUHJlY28vMTAwXG50YWJlbGFfZGVzcGVzYV9wdWJsaWNhJGBWYWxvciBSZWNlYmlkb2AgPC0gdGFiZWxhX2Rlc3Blc2FfcHVibGljYSRQcmVjb1xudGFiZWxhX2Rlc3Blc2FfcHVibGljYSRQcmVjbyA8LSBOVUxMXG5cbmBgYCJ9 -->
-<pre class="r"><code>tabela_despesa_publica$Preco &lt;- gsub(&quot;[ ,]&quot;,&quot;&quot;,gsub(&quot;[.,]&quot;,&quot;&quot;,gsub(&quot;[R$,]&quot;,&quot;&quot;,tabela_despesa_publica$`Valor Recebido`)))
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
 
-tabela_despesa_publica$Preco &lt;- as.numeric(tabela_despesa_publica$Preco)
-
-tabela_despesa_publica$Preco &lt;- tabela_despesa_publica$Preco/100
-tabela_despesa_publica$`Valor Recebido` &lt;- tabela_despesa_publica$Preco
-tabela_despesa_publica$Preco &lt;- NULL
+&lt;!-- rnb-output-begin eyJkYXRhIjoiICAgTGVuZ3RoICAgICBDbGFzcyAgICAgIE1vZGUgXG4gICAgIDkyMzYgY2hhcmFjdGVyIGNoYXJhY3RlciBcbiJ9 --&gt;
 </code></pre>
+<p>Length Class Mode 9236 character character</p>
+<pre><code>
+
+
+&lt;!-- rnb-output-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+Mudar as variaveis Preco
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxudGFiZWxhX2Rlc3Blc2FfcHVibGljYSRQcmVjbyA8LSBnc3ViKFxcWyBcbmBgYCJ9 --&gt;
+
+```r
+```r
+tabela_despesa_publica$Preco &lt;- gsub(\[ </code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Separa Nome dos CPF/Cnpj</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShzdHJpbmdyKVxudGFiZWxhX2Rlc3Blc2FfcHVibGljYSRjbnBqX2NwZiA8LSBzdHJfZXh0cmFjdCh0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJEZhdm9yZWNpZG8sXCIuK1swLTldLSsuXCIpXG50YWJlbGFfZGVzcGVzYV9wdWJsaWNhJG5vbWUgPC1zdHJfZXh0cmFjdCh0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJEZhdm9yZWNpZG8sXCJbQS1aXS4rXCIpXG50YWJlbGFfZGVzcGVzYV9wdWJsaWNhJEZhdm9yZWNpZG8gPC0gTlVMTFxuYGBgIn0= -->
-<pre class="r"><code>library(stringr)
-tabela_despesa_publica$cnpj_cpf &lt;- str_extract(tabela_despesa_publica$Favorecido,&quot;.+[0-9]-+.&quot;)
-tabela_despesa_publica$nome &lt;-str_extract(tabela_despesa_publica$Favorecido,&quot;[A-Z].+&quot;)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxubGlicmFyeShzdHJpbmdyKVxudGFiZWxhX2Rlc3Blc2FfcHVibGljYSRjbnBqX2NwZiA8LSBzdHJfZXh0cmFjdCh0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJEZhdm9yZWNpZG8sXFwuK1swLTldLSsuXFwpXG50YWJlbGFfZGVzcGVzYV9wdWJsaWNhJG5vbWUgPC1zdHJfZXh0cmFjdCh0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJEZhdm9yZWNpZG8sXFxbQS1aXS4rXFwpXG50YWJlbGFfZGVzcGVzYV9wdWJsaWNhJEZhdm9yZWNpZG8gPC0gTlVMTFxuYGBgXG5gYGAifQ== -->
+<pre class="r"><code>```r
+library(stringr)
+tabela_despesa_publica$cnpj_cpf &lt;- str_extract(tabela_despesa_publica$Favorecido,\.+[0-9]-+.\)
+tabela_despesa_publica$nome &lt;-str_extract(tabela_despesa_publica$Favorecido,\[A-Z].+\)
 tabela_despesa_publica$Favorecido &lt;- NULL</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Criar arquivo formatado para minerar dados</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxud3JpdGUudGFibGUodGFiZWxhX2Rlc3Blc2FfcHVibGljYSxcImRlc3Blc2FzRm9ybWF0YWRvLmNzdlwiLHJvdy5uYW1lcz1GQUxTRSxzZXA9XCI7XCIsZmlsZUVuY29kaW5nID0gXCJVVEYtOFwiKVxuYGBgIn0= -->
-<pre class="r"><code>write.table(tabela_despesa_publica,&quot;despesasFormatado.csv&quot;,row.names=FALSE,sep=&quot;;&quot;,fileEncoding = &quot;UTF-8&quot;)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+Criar arquivo formatado para minerar dados
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxud3JpdGUudGFibGUodGFiZWxhX2Rlc3Blc2FfcHVibGljYSxcXGRlc3Blc2FzRm9ybWF0YWRvLmNzdlxcLHJvdy5uYW1lcz1GQUxTRSxzZXA9XFw7XFwsZmlsZUVuY29kaW5nID0gXFxVVEYtOFxcKVxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+write.table(tabela_despesa_publica,\despesasFormatado.csv\,row.names=FALSE,sep=\;\,fileEncoding = \UTF-8\)</code></pre>
+<p>```</p>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OgogIHBkZl9kb2N1bWVudDogZGVmYXVsdAogIGh0bWxfbm90ZWJvb2s6IGRlZmF1bHQKICBodG1sX2RvY3VtZW50OgogICAgZGZfcHJpbnQ6IHBhZ2VkCi0tLQoKVHJhYmFsaG8gYWNhZGVtaWNvIHBhcnRlIDEgTWluZXJhw6fDo28gZGUgZGFkb3MKCkxlciBvcyBhcnF1aXZvcyBjc3YgZSBpbXBvcnQgZGVzcGVzYSBQb3IgT3JnYW8gCgpPIHF1ZSBwcmVjaXNhIHNlciBmZWl0byA/CiAgT2JqZXRpdm9zIGRhcyBhbmFsaXNlCiAxIC0gdmVyaWZpY2FyIHF1YWwgZm9pIG8gbWFpb3IgdmFsb3IgcGFnbwogMiAtIGEgbWVkaWEvbWVkaWFuYS9tb2RhIGRvcyB2YWxvcmVzCiAzIC0gcXVhaXMgb3Jnw6NvIGdhbmhhcmFtIG1haXMgZGluaGVpcm8gZSBvcyBxdWUgZ2FuaGFyYW0gbWVub3MKIDQgLSBmYXplciB1bWEgYW5hbGlzZSBwcmV2ZXIgcXVhaXMgc8OjbyBvcyBwYWRyw7VlcyBkZSBnYXN0b3MgZW0gdWJlcmzDom5kaWEKIDUgLSBjcmlhciB1bWEgYXJ2b3JlIGRlIGRlc2Npc8Ojbwo2IC0gY2F0ZWdvcml6YXIgb3MgdmFsb3JlcwpgYGB7cn0KaGVyZTo6aV9hbSgidHJhYmFsaG9NaW5lcmFjYW8vdHJiTWluZXJhY2FvLlJtZCIpCnNldHdkKCIvaG9tZS9oaWdvcmx1Y2FzL01lc3RyYWRvL01pbmVyYWNhb0RhZG9zL3RyYWJhbGhvTWluZXJhY2FvIikKbGlicmFyeShoZXJlKQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShqYW5pdG9yKQpsaWJyYXJ5KGx1YnJpZGF0ZSkKCgp0YWJlbGFfZGVzcGVzYV9wdWJsaWNhIDwtIHJlYWRfY3N2MigiZGVzcGVzYXNQb3JPcmdhby5jc3YiKQoKdGFiZWxhX2Rlc3Blc2FfcHVibGljYSQuLi43IDwtIE5VTEwKCnN1bW1hcnkodGFiZWxhX2Rlc3Blc2FfcHVibGljYSRgVmFsb3IgUmVjZWJpZG9gKQpgYGAKTXVkYXIgYXMgdmFyaWF2ZWlzIFByZWNvCmBgYHtyfQp0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJFByZWNvIDwtIGdzdWIoIlsgLF0iLCIiLGdzdWIoIlsuLF0iLCIiLGdzdWIoIltSJCxdIiwiIix0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJGBWYWxvciBSZWNlYmlkb2ApKSkKCnRhYmVsYV9kZXNwZXNhX3B1YmxpY2EkUHJlY28gPC0gYXMubnVtZXJpYyh0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJFByZWNvKQoKdGFiZWxhX2Rlc3Blc2FfcHVibGljYSRQcmVjbyA8LSB0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJFByZWNvLzEwMAp0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJGBWYWxvciBSZWNlYmlkb2AgPC0gdGFiZWxhX2Rlc3Blc2FfcHVibGljYSRQcmVjbwp0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJFByZWNvIDwtIE5VTEwKCmBgYAoKU2VwYXJhIE5vbWUgZG9zIENQRi9DbnBqCmBgYHtyfQpsaWJyYXJ5KHN0cmluZ3IpCnRhYmVsYV9kZXNwZXNhX3B1YmxpY2EkY25wal9jcGYgPC0gc3RyX2V4dHJhY3QodGFiZWxhX2Rlc3Blc2FfcHVibGljYSRGYXZvcmVjaWRvLCIuK1swLTldLSsuIikKdGFiZWxhX2Rlc3Blc2FfcHVibGljYSRub21lIDwtc3RyX2V4dHJhY3QodGFiZWxhX2Rlc3Blc2FfcHVibGljYSRGYXZvcmVjaWRvLCJbQS1aXS4rIikKdGFiZWxhX2Rlc3Blc2FfcHVibGljYSRGYXZvcmVjaWRvIDwtIE5VTEwKYGBgCgpDcmlhciBhcnF1aXZvIGZvcm1hdGFkbyBwYXJhIG1pbmVyYXIgZGFkb3MKYGBge3J9CndyaXRlLnRhYmxlKHRhYmVsYV9kZXNwZXNhX3B1YmxpY2EsImRlc3Blc2FzRm9ybWF0YWRvLmNzdiIscm93Lm5hbWVzPUZBTFNFLHNlcD0iOyIsZmlsZUVuY29kaW5nID0gIlVURi04IikKYGBg</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OgogIHBkZl9kb2N1bWVudDogZGVmYXVsdAogIGh0bWxfbm90ZWJvb2s6IGRlZmF1bHQKICBodG1sX2RvY3VtZW50OgogICAgZGZfcHJpbnQ6IHBhZ2VkCi0tLQoKVHJhYmFsaG8gYWNhZGVtaWNvIHBhcnRlIDEgTWluZXJhw6fDo28gZGUgZGFkb3MKCkxlciBvcyBhcnF1aXZvcyBjc3YgZSBpbXBvcnQgZGVzcGVzYSBQb3IgT3JnYW8gCgpPIHF1ZSBwcmVjaXNhIHNlciBmZWl0byA/CiAgT2JqZXRpdm9zIGRhcyBhbmFsaXNlCiAxIC0gdmVyaWZpY2FyIHF1YWwgZm9pIG8gbWFpb3IgdmFsb3IgcGFnbwogMiAtIGEgbWVkaWEvbWVkaWFuYS9tb2RhIGRvcyB2YWxvcmVzCiAzIC0gcXVhaXMgb3Jnw6NvIHBhZ2FtIGdhbmhhcmFtIG1haXMgZGluaGVpcm8gZSBvcyBxdWUgcGFnYW0gbWVub3MKIDQgLSBmYXplciB1bWEgYW5hbGlzZSBwcmV2ZXIgcXVhaXMgc8OjbyBvcyBwYWRyw7VlcyBkZSBnYXN0b3MgZW0gdWJlcmzDom5kaWEKIDUgLSBjcmlhciB1bWEgYXJ2b3JlIGRlIGRlc2Npc8Ojbwo2IC0gY2F0ZWdvcml6YXIgb3MgdmFsb3JlcwpgYGB7cn0KaGVyZTo6aV9hbSgidHJhYmFsaG9NaW5lcmFjYW8vdHJiTWluZXJhY2FvLlJtZCIpCnNldHdkKCIvaG9tZS9oaWdvcmx1Y2FzL01lc3RyYWRvL01pbmVyYWNhb0RhZG9zL3RyYWJhbGhvTWluZXJhY2FvIikKbGlicmFyeShoZXJlKQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShqYW5pdG9yKQpsaWJyYXJ5KGx1YnJpZGF0ZSkKCgp0YWJlbGFfZGVzcGVzYV9wdWJsaWNhIDwtIHJlYWRfY3N2MigiZGVzcGVzYXNQb3JPcmdhby5jc3YiKQoKdGFiZWxhX2Rlc3Blc2FfcHVibGljYSQuLi43IDwtIE5VTEwKCnN1bW1hcnkodGFiZWxhX2Rlc3Blc2FfcHVibGljYSRgVmFsb3IgUmVjZWJpZG9gKQpgYGAKTXVkYXIgYXMgdmFyaWF2ZWlzIFByZWNvCmBgYHtyfQp0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJFByZWNvIDwtIGdzdWIoIlsgLF0iLCIiLGdzdWIoIlsuLF0iLCIiLGdzdWIoIltSJCxdIiwiIix0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJGBWYWxvciBSZWNlYmlkb2ApKSkKCnRhYmVsYV9kZXNwZXNhX3B1YmxpY2EkUHJlY28gPC0gYXMubnVtZXJpYyh0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJFByZWNvKQoKdGFiZWxhX2Rlc3Blc2FfcHVibGljYSRQcmVjbyA8LSB0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJFByZWNvLzEwMAp0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJGBWYWxvciBSZWNlYmlkb2AgPC0gdGFiZWxhX2Rlc3Blc2FfcHVibGljYSRQcmVjbwp0YWJlbGFfZGVzcGVzYV9wdWJsaWNhJFByZWNvIDwtIE5VTEwKCmBgYAoKU2VwYXJhIE5vbWUgZG9zIENQRi9DbnBqCmBgYHtyfQpsaWJyYXJ5KHN0cmluZ3IpCnRhYmVsYV9kZXNwZXNhX3B1YmxpY2EkY25wal9jcGYgPC0gc3RyX2V4dHJhY3QodGFiZWxhX2Rlc3Blc2FfcHVibGljYSRGYXZvcmVjaWRvLCIuK1swLTldLSsuIikKdGFiZWxhX2Rlc3Blc2FfcHVibGljYSRub21lIDwtc3RyX2V4dHJhY3QodGFiZWxhX2Rlc3Blc2FfcHVibGljYSRGYXZvcmVjaWRvLCJbQS1aXS4rIikKdGFiZWxhX2Rlc3Blc2FfcHVibGljYSRGYXZvcmVjaWRvIDwtIE5VTEwKYGBgCgpDcmlhciBhcnF1aXZvIGZvcm1hdGFkbyBwYXJhIG1pbmVyYXIgZGFkb3MKYGBge3J9CndyaXRlLnRhYmxlKHRhYmVsYV9kZXNwZXNhX3B1YmxpY2EsImRlc3Blc2FzRm9ybWF0YWRvLmNzdiIscm93Lm5hbWVzPUZBTFNFLHNlcD0iOyIsZmlsZUVuY29kaW5nID0gIlVURi04IikKYGBg</div>
 
 
 

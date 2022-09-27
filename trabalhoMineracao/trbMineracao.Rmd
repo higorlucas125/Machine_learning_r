@@ -15,7 +15,7 @@ O que precisa ser feito ?
   Objetivos das analise
  1 - verificar qual foi o maior valor pago
  2 - a media/mediana/moda dos valores
- 3 - quais orgão ganharam mais dinheiro e os que ganharam menos
+ 3 - quais orgão pagam ganharam mais dinheiro e os que pagam menos
  4 - fazer uma analise prever quais são os padrões de gastos em uberlândia
  5 - criar uma arvore de descisão
 6 - categorizar os valores

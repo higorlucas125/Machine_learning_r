@@ -1,0 +1,44 @@
+```{r}
+here::i_am("trabalhoMineracao/classificacao.Rmd")
+library(here)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+
+
+tabela_despesa <- read_csv2("despesasFormatado.csv")
+
+```
+
+Formatação dos valores para factor
+```{r}
+tabela_despesa$cnpj_cpf <- as.factor(tabela_despesa$cnpj_cpf)
+tabela_despesa$nome <- as.factor(tabela_despesa$nome)
+tabela_despesa$`Tipo de Favorecido` <- as.factor(tabela_despesa$`Tipo de Favorecido`)
+```
+
+A media/mediana/moda dos valores recebido
+```{r}
+summary(tabela_despesa$`Valor Recebido`)
+```
+Formatar dados
+```{r}
+names(tabela_despesa)
+names(tabela_despesa) <- c("Mes Ano","Tipo Favorecidos","Estado","Municipio","Valor Pago","Cpf Cnpj","Nome")
+
+tabela_despesa <- janitor::clean_names(tabela_despesa)
+```
+
+Quais Tipo favorecidos pagam mais dinheiro e os que pagam menos
+```{r}
+ resumo <- tabela_despesa |> 
+          group_by(tipo_favorecidos) |> 
+          summarise( mediana = round(median(valor_pago), 2), 
+                    media = mean(valor_pago), 
+                    quantos = n(), 
+                    novo  = min(valor_pago), 
+                    velho = max(valor_pago)) |>
+                arrange(desc(media))
+resumo
+          
+```
