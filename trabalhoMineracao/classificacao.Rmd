@@ -7,9 +7,19 @@ library(lubridate)
 
 
 tabela_despesa_publica2 <- read_csv2("despesasFormatado.csv")
-tabela_backup <- tabela_despesa_publica2
 tabela_despesa_publica2$`Valor Recebido`[tabela_despesa_publica2$`Valor Recebido` == 0] <- 1
-tabela_despesa_publica2$`Valor Recebido`[tabela_despesa_publica2$`Valor Recebido` > 779361627] <- 1000000
+```
+VER GRAFIO GGPLOT GEOM_HISTOGRAM E BAR
+
+```{r}
+library(ggplot2)
+
+figura <- ggplot(tabela_despesa_publica2, aes(`Tipo de Favorecido`))
+figura <- figura + geom_bar()
+figura
+
+summary(tabela_despesa_publica2$`Tipo de Favorecido`)
+
 ```
 
 Utilizando o Rpart para prever o valor das Receitas
@@ -20,6 +30,7 @@ length(tabela_despesa_publica2$`Tipo de Favorecido`)
 tabela_despesa_publica2$cnpj_cpf <- as.factor(tabela_despesa_publica2$cnpj_cpf)
 tabela_despesa_publica2$nome <- as.factor(tabela_despesa_publica2$nome)
 tabela_despesa_publica2$`Tipo de Favorecido` <- as.factor(tabela_despesa_publica2$`Tipo de Favorecido`)
+
 linhas <- sample(1:length(tabela_despesa_publica2$`Tipo de Favorecido`),length(tabela_despesa_publica2$`Tipo de Favorecido`)*0.7)
 ```
 
@@ -53,7 +64,7 @@ teste$cnpj_cpf <- NULL
 Analisar resultados
 ```{r}
 teste$Pre <- round(teste$Previsao/teste$`Valor Recebido`,2)
-teste$Pre <- teste$P-1
+teste$Pre <- teste$Prex-1
 teste$Pre <- abs(teste$Pre)
 R_1 <- summary(teste$Pre)
 R_1
