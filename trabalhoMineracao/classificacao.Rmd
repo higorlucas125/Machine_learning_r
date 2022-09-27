@@ -1,6 +1,5 @@
 ```{r}
 here::i_am("trabalhoMineracao/classificacao.Rmd")
-setwd("/home/higorlucas/Mestrado/MineracaoDados/trabalhoMineracao")
 library(here)
 library(tidyverse)
 library(janitor)
@@ -8,13 +7,9 @@ library(lubridate)
 
 
 tabela_despesa_publica2 <- read_csv2("despesasFormatado.csv")
+tabela_backup <- tabela_despesa_publica2
 tabela_despesa_publica2$`Valor Recebido`[tabela_despesa_publica2$`Valor Recebido` == 0] <- 1
-```
-
-Media de valores summary
-```{r}
-tabela_despesa_publica2$`Valor Recebido` %>% mean
-summary(tabela_despesa_publica2$`Valor Recebido`)
+tabela_despesa_publica2$`Valor Recebido`[tabela_despesa_publica2$`Valor Recebido` > 779361627] <- 1000000
 ```
 
 Utilizando o Rpart para prever o valor das Receitas
@@ -24,6 +19,7 @@ length(tabela_despesa_publica2$`Tipo de Favorecido`)
 
 tabela_despesa_publica2$cnpj_cpf <- as.factor(tabela_despesa_publica2$cnpj_cpf)
 tabela_despesa_publica2$nome <- as.factor(tabela_despesa_publica2$nome)
+tabela_despesa_publica2$`Tipo de Favorecido` <- as.factor(tabela_despesa_publica2$`Tipo de Favorecido`)
 linhas <- sample(1:length(tabela_despesa_publica2$`Tipo de Favorecido`),length(tabela_despesa_publica2$`Tipo de Favorecido`)*0.7)
 ```
 
@@ -35,7 +31,7 @@ treino <- tabela_despesa_publica2[linhas,]
 ```{r}
 teste <- tabela_despesa_publica2[-linhas,]
 
-length(tabela_despesa_publica2$`Tipo de Favorecido`) + length(tabela_despesa_publica2$`Tipo de Favorecido`)
+length(teste$`Tipo de Favorecido`) + length(treino$`Tipo de Favorecido`)
 ```
 
 Criar o modelo
@@ -50,14 +46,16 @@ predict
 ```{r}
 teste$Previsao <- predict(modelo,teste)
 View(teste)
+teste$cnpj_cpf <- NULL
+
 ```
 
 Analisar resultados
 ```{r}
-teste$P <- round(teste$Previsao/teste$`Valor Recebido`,2)
-teste$P <- teste$P-1
-teste$P <- abs(teste$P)
-R_1 <- summary(teste$P)
+teste$Pre <- round(teste$Previsao/teste$`Valor Recebido`,2)
+teste$Pre <- teste$P-1
+teste$Pre <- abs(teste$Pre)
+R_1 <- summary(teste$Pre)
 R_1
 ```
 
@@ -68,4 +66,10 @@ menos_de_dez_porcento <- quantile(tabela_despesa_publica2$`Valor Recebido`,0.90)
 
 hist(tabela_despesa_publica2$`Valor Recebido`[tabela_despesa_publica2$`Valor Recebido`< menos_de_dez_porcento],xlab="Valores menores que 10%",breaks=10,labels=T)
 
+```
+
+Media de valores summary
+```{r}
+tabela_despesa_publica2$`Valor Recebido` %>% mean
+summary(tabela_despesa_publica2$`Valor Recebido`)
 ```
