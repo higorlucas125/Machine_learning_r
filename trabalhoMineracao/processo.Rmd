@@ -1,5 +1,5 @@
 ```{r}
-here::i_am("trabalhoMineracao/classificacao.Rmd")
+here::i_am("trabalhoMineracao/processo.Rmd")
 library(here)
 library(tidyverse)
 library(janitor)

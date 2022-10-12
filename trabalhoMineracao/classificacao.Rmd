@@ -9,7 +9,12 @@ library(lubridate)
 tabela_despesa_publica2 <- read_csv2("despesasFormatado.csv")
 tabela_despesa_publica2$`Valor Recebido`[tabela_despesa_publica2$`Valor Recebido` == 0] <- 1
 ```
+Dados obitidos 
+https://www.portaltransparencia.gov.br/despesas/recursos-recebidos?paginacaoSimples=true&tamanhoPagina=&offset=&direcaoOrdenacao=asc&de=01%2F07%2F2022&ate=30%2F09%2F2022&uf=MG&nomeMunicipio=Uberl%C3%A2ndia&colunasSelecionadas=linkDetalhamento%2CmesAno%2Cfavorecido%2CtipoFavorecido%2CufFavorecido%2CmunicipioFavorecido%2CvalorRecebido&ordenarPor=mesAno&direcao=asc
+
+
 VER GRAFIO GGPLOT GEOM_HISTOGRAM E BAR
+
 
 ```{r}
 library(ggplot2)
@@ -64,10 +69,14 @@ teste$cnpj_cpf <- NULL
 Analisar resultados
 ```{r}
 teste$Pre <- round(teste$Previsao/teste$`Valor Recebido`,2)
-teste$Pre <- teste$Prex-1
+#teste$Pre <- teste$Prex-1
 teste$Pre <- abs(teste$Pre)
 R_1 <- summary(teste$Pre)
 R_1
+```
+Analise de dados com Acuracia
+```{r}
+
 ```
 
 Organizar os dados em quantidade

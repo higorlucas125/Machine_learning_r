@@ -21,11 +21,8 @@ O que precisa ser feito ?
 6 - categorizar os valores
 ```{r}
 here::i_am("trabalhoMineracao/trbMineracao.Rmd")
-setwd("/home/higorlucas/Mestrado/MineracaoDados/trabalhoMineracao")
 library(here)
 library(tidyverse)
-library(janitor)
-library(lubridate)
 
 
 tabela_despesa_publica <- read_csv2("despesasPorOrgao.csv")
