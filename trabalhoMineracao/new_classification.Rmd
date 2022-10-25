@@ -1,0 +1,135 @@
+Iniciando fazendo a mineração dos dados
+```{r}
+here::i_am("trabalhoMineracao/new_classification.Rmd")
+library(here)
+library(tidymodels)
+library(tidyverse)
+library(mlbench)
+library(ggfortify)
+library(catboost)
+library(skimr)
+library(ggplot2)
+library(ggfortify)
+
+
+tabela_despesa_publica2 <- read_csv2("despesasFormatado.csv")
+#Para não existir valores com 0
+tabela_despesa_publica2$`Valor Recebido`[tabela_despesa_publica2$`Valor Recebido` == 0] <- 1
+
+tabela_despesa_publica2$cnpj_cpf <- as.factor(tabela_despesa_publica2$cnpj_cpf)
+tabela_despesa_publica2$nome <- as.factor(tabela_despesa_publica2$nome)
+tabela_despesa_publica2$`Tipo de Favorecido` <- as.factor(tabela_despesa_publica2$`Tipo de Favorecido`)
+
+
+despesa_publica <- janitor::clean_names(tabela_despesa_publica2)
+despesa_publica$municipio_do_favorecido <- as.factor(despesa_publica$municipio_do_favorecido)
+despesa_publica$uf_do_favorecido <- as.factor(despesa_publica$uf_do_favorecido)
+despesa_publica$uf_do_favorecido <- NULL
+despesa_publica$municipio_do_favorecido <- NULL
+despesa_publica$valor_recebido <- NULL
+
+```
+treinanmento do modelo
+```{r}
+divisao_de_dados1 <- initial_split(despesa_publica)
+dados_de_treino2 <- training(divisao_de_dados1)
+dados_de_teste2  <- testing(divisao_de_dados1)
+```
+reamostragem dos dados
+```{r}
+reamostragem <- bootstraps(dados_de_treino2, times = 5) 
+```
+
+```{r}
+
+## find all the ordered factors
+ordered_names <- despesa_publica |> 
+  select(where(is.ordered)) |>
+  names()
+
+receita1<- recipe(tipo_de_favorecido ~ . , despesa_publica) |> update_role(mes_ano, new_role = "mes_ano")
+receita1 <- receita1 |> step_impute_mode(cnpj_cpf)
+juice(prep(receita1)) |>skim()
+
+#receita1 <- receita1 |> step_dummy(all_nominal_predictors())
+juice(prep(receita1)) |> glimpse()
+```
+
+```{r}
+library(baguette)
+
+arv_decisao <- decision_tree(mode = "classification", tree_depth = tune(), min_n = 10) #CART alta variancia
+knn <- nearest_neighbor(mode = "classification", neighbors = tune()) # alta variancia ponderação por vizinhos
+bag_de_arv <- bag_tree(mode = "classification", tree_depth = tune(), min_n = 10) # bagging de CART
+floresta <- rand_forest(mode = "classification", mtry = tune(), min_n = 10, trees = 100) # trees = 1000 #bagging "generica" sem poda
+
+combinacoes <- workflow_set(
+                preproc = list(receita1),
+                models = list("arvore" = arv_decisao,
+                              "knn" = knn,
+                              "bag_de_arv" = bag_de_arv,
+                              "floresta" = floresta)
+              )
+
+res <- combinacoes |> workflow_map(resamples = reamostragem,
+                                   grid = 5,
+                                   verbose = T
+                                   )              
+
+autoplot(res, metric = "roc_auc")
+```
+
+```{r}
+library(tidymodels)
+library(baguette)
+library(catboost)
+library(lightgbm)
+
+xg_boost <- boost_tree(mode = "classification", engine  = "xgboost", learn_rate = tune())
+c5_boost <- boost_tree(mode = "classification", engine  = "C5.0", learn_rate = tune())
+
+
+combinacoes <- workflow_set(
+                preproc = list(receita),
+                models = list("arvore" = arv_decisao,
+                              "knn" = knn,
+                              "bag_de_arv" = bag_de_arv,
+                              "floresta" = floresta,
+                              "xg_boost" = xg_boost)
+              )
+
+res2 <- combinacoes |> workflow_map(resamples = reamostragem,
+                                   grid = 5,
+                                   verbose = T, 
+                                   )         
+
+autoplot(res2, metric = "roc_auc")
+```
+
+```{r}
+library(stacks)
+library(doFuture)
+doFuture::registerDoFuture()
+combinacoes <- workflow_set(
+                preproc = list(receita),
+                models = list("arvore" = arv_decisao,
+                              "knn" = knn,
+                              #"bag_de_arv" = bag_de_arv,
+                              "floresta" = floresta,
+                              "xg_boost" = xg_boost)
+              )
+
+res3 <- combinacoes |> workflow_map(resamples = reamostragem,
+                                   grid = 5, # grid =30
+                                   verbose = T, 
+                                   control = control_stack_resamples()
+                                   )         
+
+pilha_de_modelos <- stacks(res3)
+
+pilha_de_modelos <- blend_predictions(pilha_de_modelos, penalty = c(0.01, 0.05, 0.1, 0.25, 0.5)) # modelo de meta-aprendizado usando regularização lasso
+
+ensemble <- fit_members(pilha_de_modelos)
+
+autoplot(ensemble)
+```
